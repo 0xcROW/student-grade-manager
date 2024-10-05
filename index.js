@@ -1,26 +1,40 @@
 import http from 'http';
+import { v4 } from 'uuid';
 
 const port = 3000;
 const grades = [
-    {
-        "studentName": "Matheus",
-        "subject": "dev",
-        "grade": 8,
-    },
+  {
+    "studentName": "Matheus",
+    "subject": "dev",
+    "grade": 8,
+  },
 ]
 
 const server = http.createServer((req, res) => {
-    const {method, url} = req
+  const {method, url} = req;
+  let body = '';
 
+  req.on('data', chunk => {
+    body += chunk.toString();
+  });
+
+  req.on('end', () => {
     if (url === '/grades' && method === 'GET') {
-        res.writeHead(200, {'Content-Type': 'application/json'})
-        res.end(JSON.stringify(grades));
+      res.writeHead(200, {'Content-Type': 'application/json'})
+      res.end(JSON.stringify(grades));
+    } else if (url === '/grades' && method === 'POST') {
+      const { studentName, subject, grade } = JSON.parse(body);
+      const newGrade = {id: v4(), studentName, subject, grade};
+      grades.push(newGrade);
+      res.writeHead(201, {'Content-Type': 'application/json'})
+      res.end(JSON.stringify(newGrade));
     } else {
-        res.writeHead(404, {'Content-Type': 'application/json'})
-        res.end(JSON.stringify({message: 'Not found'}));
+      res.writeHead(404, {'Content-Type': 'application/json'})
+      res.end(JSON.stringify({message: 'Not found'}));
     }
+  });
 });
 
 server.listen(port, ()=> {
-    console.log(`Server running on http://localhost:${port}`);
+  console.log(`Server running on http://localhost:${port}`);
 })
