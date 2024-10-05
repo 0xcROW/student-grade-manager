@@ -2,13 +2,7 @@ import http from 'http';
 import { v4 } from 'uuid';
 
 const port = 3000;
-const grades = [
-  {
-    "studentName": "Matheus",
-    "subject": "dev",
-    "grade": 8,
-  },
-]
+const grades = []
 
 const server = http.createServer((req, res) => {
   const {method, url} = req;
