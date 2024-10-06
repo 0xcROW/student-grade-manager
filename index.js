@@ -22,6 +22,9 @@ const server = http.createServer((req, res) => {
       grades.push(newGrade);
       res.writeHead(201, {'Content-Type': 'application/json'})
       res.end(JSON.stringify(newGrade));
+    } else if (url === '/grades' && method === 'PUT') {
+      const { studentName, subject, grade } = JSON.parse(body);
+      const gradeToUpdate = grades.find(g)
     } else {
       res.writeHead(404, {'Content-Type': 'application/json'})
       res.end(JSON.stringify({message: 'Not found'}));
