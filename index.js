@@ -13,6 +13,8 @@ const server = http.createServer((req, res) => {
   });
 
   req.on('end', () => {
+    const id = url.split('/')[2];
+
     if (url === '/grades' && method === 'GET') {
       res.writeHead(200, {'Content-Type': 'application/json'})
       res.end(JSON.stringify(grades));
@@ -22,9 +24,19 @@ const server = http.createServer((req, res) => {
       grades.push(newGrade);
       res.writeHead(201, {'Content-Type': 'application/json'})
       res.end(JSON.stringify(newGrade));
-    } else if (url === '/grades' && method === 'PUT') {
+    } else if (url.startsWith('/grades/') && method === 'PUT') {
       const { studentName, subject, grade } = JSON.parse(body);
-      const gradeToUpdate = grades.find(g)
+      const gradeToUpdate = grades.find((g) => g.id === id);
+      if (gradeToUpdate) {
+        gradeToUpdate.studentName = studentName;
+        gradeToUpdate.subject = subject;
+        gradeToUpdate.grade = grade;
+        res.writeHead(200, { "Content-Type": "application/json" });
+        res.end(JSON.stringify(gradeToUpdate));
+      } else {
+        res.writeHead(404, { "Content-Type": "application/json" });
+        res.end(JSON.stringify({ messasge: "Grade not found" }));
+      }
     } else {
       res.writeHead(404, {'Content-Type': 'application/json'})
       res.end(JSON.stringify({message: 'Not found'}));
