@@ -8,23 +8,31 @@ const server = http.createServer((req, res) => {
   const {method, url} = req;
   let body = '';
 
+  //This will add to body everything that will come in the further requests, since body was set globally right above
   req.on('data', chunk => {
     body += chunk.toString();
   });
 
+  //This will take the URL and split it in two parts, save globally what comes after / in a constant
   req.on('end', () => {
     const id = url.split('/')[2];
 
+    //CRUD routes
+    //GET
     if (url === '/grades' && method === 'GET') {
       res.writeHead(200, {'Content-Type': 'application/json'})
       res.end(JSON.stringify(grades));
-    } else if (url === '/grades' && method === 'POST') {
+    } 
+    //POST
+    else if (url === '/grades' && method === 'POST') {
       const { studentName, subject, grade } = JSON.parse(body);
       const newGrade = {id: v4(), studentName, subject, grade};
       grades.push(newGrade);
       res.writeHead(201, {'Content-Type': 'application/json'})
       res.end(JSON.stringify(newGrade));
-    } else if (url.startsWith('/grades/') && method === 'PUT') {
+    } 
+    //PUT
+    else if (url.startsWith('/grades/') && method === 'PUT') {
       const { studentName, subject, grade } = JSON.parse(body);
       const gradeToUpdate = grades.find((g) => g.id === id);
       if (gradeToUpdate) {
@@ -37,7 +45,9 @@ const server = http.createServer((req, res) => {
         res.writeHead(404, { "Content-Type": "application/json" });
         res.end(JSON.stringify({ messasge: "Grade not found" }));
       }
-    } else if (url.startsWith('/grades/') && method === 'DELETE') {
+    }
+    //DELETE
+    else if (url.startsWith('/grades/') && method === 'DELETE') {
       const index = grades.findIndex((g) => g.id === id);
       if (index !== -1) {
         grades.splice(index, 1);
@@ -54,6 +64,7 @@ const server = http.createServer((req, res) => {
   });
 });
 
+//Server start
 server.listen(port, ()=> {
   console.log(`Server running on http://localhost:${port}`);
 })
